@@ -245,8 +245,6 @@ ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
 
-CROSS_COMPILE=/home/liup/tools/100ask/gcc4.3.2/usr/local/arm/4.3.2/bin/arm-linux-
-
 KCONFIG_CONFIG	?= .config
 export KCONFIG_CONFIG
 
