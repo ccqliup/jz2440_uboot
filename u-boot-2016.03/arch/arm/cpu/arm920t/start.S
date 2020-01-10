@@ -79,12 +79,13 @@ copyex:
 	ldr	r0, =INTSUBMSK
 	str	r1, [r0]
 # endif
-
+#if 0
 	/* FCLK:HCLK:PCLK = 1:2:4 */
 	/* default FCLK is 120 MHz ! */
 	ldr	r0, =CLKDIVN
 	mov	r1, #3
 	str	r1, [r0]
+#endif
 #endif	/* CONFIG_S3C24X0 */
 
 	/*
@@ -147,3 +148,68 @@ cpu_init_crit:
 	mov	lr, ip
 	mov	pc, lr
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */
+
+/*****************************liup led test code***start**********************************/
+#define LIUP_LED_PORT_CON 0x56000070
+#define LIUP_LED_PORT_DAT 0x56000074
+#define LIUP_LED_ON_MASK 0x00000020
+#define LIUP_LED_OFF_MASK 0xFFFFFFDF
+
+	.global liup_led_test
+liup_led_test:
+    mov sp,lr
+    bl liup_led_init
+    bl liup_wait
+    mov pc,sp
+
+liup_led_init:
+    LDR R0,=LIUP_LED_PORT_DAT
+    LDR R1,[R0]
+    LDR R3,=LIUP_LED_OFF_MASK
+    ORR R1,R1,R3
+    STR R1,[R0]
+
+    LDR R0,=LIUP_LED_PORT_CON
+    LDR R1,[R0]
+    LDR R3,=0xFFFFF3FF
+    AND R1,R1,R3
+    LDR R3,=0x00000400
+    ORR R1,R1,R3
+    STR R1,[R0]
+    MOV PC,LR
+
+	.global liup_wait
+liup_wait:
+    BL liup_ledon
+    BL liup_leddelay
+    BL liup_ledoff
+    BL liup_leddelay
+    B liup_wait
+	
+liup_ledon:
+    LDR R0,=LIUP_LED_PORT_DAT
+    LDR R1,[R0]
+    LDR R3,=LIUP_LED_ON_MASK
+    ORR R1,R1,R3
+    STR     R1,[R0]
+    MOV PC,LR
+	
+liup_ledoff:
+    LDR R0,=LIUP_LED_PORT_DAT
+    LDR R1,[R0]
+    LDR R3,=LIUP_LED_OFF_MASK
+    AND R1,R1,R3
+    STR R1,[R0]
+    MOV PC,LR
+
+#define LIUP_WAIT_LED_DELAY 0x200000	
+liup_leddelay:
+	MOV R0,#LIUP_WAIT_LED_DELAY
+0:
+	SUB R0,R0,#1
+	MOV R1,#0
+	CMP R0,r1
+	BNE 0b
+	MOV PC,LR
+
+/*****************************liup led test code***end**********************************/

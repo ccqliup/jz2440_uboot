@@ -1,7 +1,6 @@
 #
 # SPDX-License-Identifier:	GPL-2.0+
 #
-
 VERSION = 2016
 PATCHLEVEL = 03
 SUBLEVEL =
@@ -245,6 +244,8 @@ export	HOSTARCH HOSTOS
 ifeq ($(HOSTARCH),$(ARCH))
 CROSS_COMPILE ?=
 endif
+
+CROSS_COMPILE=/home/liup/tools/100ask/gcc4.3.2/usr/local/arm/4.3.2/bin/arm-linux-
 
 KCONFIG_CONFIG	?= .config
 export KCONFIG_CONFIG
@@ -728,7 +729,7 @@ DO_STATIC_RELA =
 endif
 
 # Always append ALL so that arch config.mk's can add custom ones
-ALL-y += u-boot.srec u-boot.bin u-boot.sym System.map u-boot.cfg binary_size_check
+ALL-y += u-boot.dis u-boot.srec u-boot.bin u-boot.sym System.map u-boot.cfg binary_size_check
 
 ALL-$(CONFIG_ONENAND_U_BOOT) += u-boot-onenand.bin
 ifeq ($(CONFIG_SPL_FSL_PBL),y)
@@ -1609,6 +1610,49 @@ endif	# skip-makefile
 
 PHONY += FORCE
 FORCE:
+
+# add by liup start #
+CODE_COPY_PATH:=/home/liup/windows_share/E/02_Learn/01_Linux/03_code/uboot/u-boot-2016.03/
+OUT_DIR_PATH:=$(pwd)../out_dir/
+PHONY += code_copy
+code_copy:
+	@echo "enter liup code_copy"
+	
+	@rm -f ./Makefile.back
+	@cp $(CODE_COPY_PATH)/Makefile ./Makefile.back
+	@ls -l ./Makefile.back
+
+	@rm -f ./drivers/mtd/nand/nand.c
+	@cp $(CODE_COPY_PATH)/drivers/mtd/nand/nand.c ./drivers/mtd/nand/nand.c
+	@ls -l ./drivers/mtd/nand/nand.c
+	
+	@echo "exit liup code_copy"
+	
+PHONY += bin_copy
+bin_copy: 
+	@echo "enter liup bin_copy"
+	@echo $(OUT_DIR_PATH)
+	
+	@rm -f $(CODE_COPY_PATH)u-boot.bin
+	@cp $(OUT_DIR_PATH)u-boot.bin $(CODE_COPY_PATH)u-boot.bin
+	@ls -l $(CODE_COPY_PATH)u-boot.bin
+	
+	@rm -f $(CODE_COPY_PATH)u-boot.dis
+	@cp $(OUT_DIR_PATH)/u-boot.dis $(CODE_COPY_PATH)u-boot.dis
+	@ls -l $(CODE_COPY_PATH)u-boot.dis
+	
+	@rm -f $(CODE_COPY_PATH)u-boot.map
+	@cp $(OUT_DIR_PATH)/u-boot.map $(CODE_COPY_PATH)u-boot.map
+	@ls -l $(CODE_COPY_PATH)u-boot.map
+	
+	@echo "exit liup bin_copy"
+	
+PHONY += win
+win: 
+	@echo "enter liup win"
+	@echo "exit liup win"
+
+# add by liup end #
 
 # Declare the contents of the .PHONY variable as phony.  We keep that
 # information in a variable so we can use it in if_changed and friends.
