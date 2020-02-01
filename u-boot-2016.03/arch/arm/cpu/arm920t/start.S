@@ -79,7 +79,7 @@ copyex:
 	ldr	r0, =INTSUBMSK
 	str	r1, [r0]
 # endif
-#if 0
+#ifndef CONFIG_SKIP_LOWLEVEL_INIT
 	/* FCLK:HCLK:PCLK = 1:2:4 */
 	/* default FCLK is 120 MHz ! */
 	ldr	r0, =CLKDIVN
@@ -96,6 +96,18 @@ copyex:
 	bl	cpu_init_crit
 #endif
 
+#ifdef CONFIG_BOOT_FROM_FLASH
+	ldr	sp, =CONFIG_SYS_INIT_SP_ADDR
+	bl boot_clock_init
+	ldr r0,=0
+	ldr r1,=__image_copy_start
+	ldr r2,=__image_copy_end
+	sub r2,r2,r1
+	bl copy_code_nandtosdram
+	bl boot_clear_bss
+	ldr pc,=START_ON_RAM
+START_ON_RAM:
+#endif
 	bl	_main
 
 /*------------------------------------------------------------------------------*/
@@ -149,9 +161,49 @@ cpu_init_crit:
 	mov	pc, lr
 #endif /* CONFIG_SKIP_LOWLEVEL_INIT */
 
+#define BWSCON1	0x48000000
+
+	.globl lowlevel_init1
+lowlevel_init1:
+/* memory control configuration */	
+/* make r0 relative the current location so that it */	
+/* reads SMRDATA out of FLASH rather than memory ! */	
+	ldr     r0, =SMRDATA1	
+	ldr	r1, =CONFIG_SYS_TEXT_BASE	
+	sub	r0, r0, r1	
+	ldr	r1, =BWSCON1	
+	/* Bus Width Status Controller */	
+	add     r2, r0, #13*4
+0:	ldr     r3, [r0], #4	
+	str     r3, [r1], #4	
+	cmp     r2, r0	
+	bne     0b
+
+	/* everything is fine now */	
+	mov	pc, lr	
+	mov	pc, lr	
+	b lowlevel_init	
+	
+	.ltorg
+	/* the literal pools origin */
+SMRDATA1:	
+	.word   0x220d9110	
+	.word   0x00000700	
+	.word   0x00000700	
+	.word   0x00000700	
+	.word   0x00001f4c	
+	.word   0x00001f88	
+	.word   0x00000700	
+	.word   0x00018005	
+	.word   0x00018005	
+	.word   0x008e04f4	
+	.word   0x000000b1	
+	.word   0x00000030	
+	.word   0x00000030
+
 /*****************************liup led test code***start**********************************/
-#define LIUP_LED_PORT_CON 0x56000070
-#define LIUP_LED_PORT_DAT 0x56000074
+#define LIUP_LED_PORT_CON 0x56000050
+#define LIUP_LED_PORT_DAT 0x56000054
 #define LIUP_LED_ON_MASK 0x00000020
 #define LIUP_LED_OFF_MASK 0xFFFFFFDF
 

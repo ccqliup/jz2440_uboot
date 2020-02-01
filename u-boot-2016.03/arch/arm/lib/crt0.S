@@ -69,7 +69,6 @@ ENTRY(_main)
 /*
  * Set up initial C runtime environment and call board_init_f(0).
  */
-
 #if defined(CONFIG_SPL_BUILD) && defined(CONFIG_SPL_STACK)
 	ldr	sp, =(CONFIG_SPL_STACK)
 #else
@@ -88,9 +87,15 @@ ENTRY(_main)
 	/* set up gd here, outside any C code */
 	mov	r9, r0
 	bl	board_init_f_init_reserve
-
 	mov	r0, #0
 	bl	board_init_f
+
+#ifdef CONFIG_BOOT_FROM_FLASH
+	/* call board_init_r(gd_t *id, ulong dest_addr) */
+	mov     r0, r9                  /* gd_t */
+	ldr	r1, [r9, #GD_RELOCADDR]	/* dest_addr */
+	ldr	pc, =board_init_r	/* this is auto-relocated! */
+#endif
 
 #if ! defined(CONFIG_SPL_BUILD)
 

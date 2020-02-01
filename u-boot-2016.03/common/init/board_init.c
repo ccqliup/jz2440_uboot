@@ -106,13 +106,28 @@ ulong board_init_f_alloc_reserve(ulong top)
  * and remove the last base incrementation, therefore leaving that last
  * (seemingly useless) incrementation causes no code increase.
  */
-
+#if 0
 void board_init_f_init_reserve(ulong base)
 {
 	struct global_data *gd_ptr;
-#ifndef _USE_MEMCPY
 	int *ptr;
+	gd_ptr = (struct global_data *)base;
+#if 0	
+	for (ptr = (int *)gd_ptr; ptr < (int *)(gd_ptr + 1); )
+		*ptr++ = 0;
+#else	
+	memset(gd_ptr, '\0', sizeof(*gd));
 #endif
+}
+#endif
+
+#if 1
+void board_init_f_init_reserve(ulong base)
+{
+	struct global_data *gd_ptr;
+
+
+	int *ptr;
 
 	/*
 	 * clear GD entirely and set it up.
@@ -121,12 +136,10 @@ void board_init_f_init_reserve(ulong base)
 
 	gd_ptr = (struct global_data *)base;
 	/* zero the area */
-#ifdef _USE_MEMCPY
-	memset(gd_ptr, '\0', sizeof(*gd));
-#else
+
 	for (ptr = (int *)gd_ptr; ptr < (int *)(gd_ptr + 1); )
 		*ptr++ = 0;
-#endif
+
 	/* set GD unless architecture did it already */
 #if !defined(CONFIG_ARM)
 	arch_setup_gd(gd_ptr);
@@ -146,3 +159,4 @@ void board_init_f_init_reserve(ulong base)
 	base += CONFIG_SYS_MALLOC_F_LEN;
 #endif
 }
+#endif
