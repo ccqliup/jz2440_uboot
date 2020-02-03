@@ -645,10 +645,13 @@ static int initr_bbmii(void)
 static int initr_net(void)
 {
 	puts("Net:   ");
+#if 0	
+/*liup:初始化以太网程序死掉*/
 	eth_initialize();
 #if defined(CONFIG_RESET_PHY_R)
 	debug("Reset Ethernet PHY\n");
 	reset_phy();
+#endif
 #endif
 	return 0;
 }

@@ -89,12 +89,15 @@ ENTRY(_main)
 	bl	board_init_f_init_reserve
 	mov	r0, #0
 	bl	board_init_f
-
+#if 0 
+/*liup:不使用自带的重定位功能，启动内核后程序死掉，待分析原因*/
+/*liup:怀疑是内存空间分配问题*/
 #ifdef CONFIG_BOOT_FROM_FLASH
 	/* call board_init_r(gd_t *id, ulong dest_addr) */
 	mov     r0, r9                  /* gd_t */
 	ldr	r1, [r9, #GD_RELOCADDR]	/* dest_addr */
 	ldr	pc, =board_init_r	/* this is auto-relocated! */
+#endif
 #endif
 
 #if ! defined(CONFIG_SPL_BUILD)

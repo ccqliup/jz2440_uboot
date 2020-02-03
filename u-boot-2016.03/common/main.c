@@ -65,6 +65,8 @@ void main_loop(void)
 	update_tftp(0UL, NULL, NULL);
 #endif /* CONFIG_UPDATE_TFTP */
 
+	/*掉电后分区信息丢失，必须每次执行mtdparts default，重新分区*/
+	run_command("mtdparts default",0);
 	s = bootdelay_process();
 	if (cli_process_fdt(&s))
 		cli_secure_boot_cmd(s);

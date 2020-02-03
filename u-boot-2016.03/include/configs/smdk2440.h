@@ -147,9 +147,10 @@
 #define CONFIG_SYS_FLASH_BANKS_LIST     { CONFIG_SYS_FLASH_BASE }
 #define CONFIG_SYS_MAX_FLASH_SECT	(19)
 
-#define CONFIG_ENV_ADDR			(CONFIG_SYS_FLASH_BASE + 0x070000)
-#define CONFIG_ENV_IS_IN_FLASH
-#define CONFIG_ENV_SIZE			0x10000
+#define CONFIG_ENV_IS_IN_NAND
+#define CONFIG_ENV_OFFSET 			0x100000
+#define CONFIG_ENV_SIZE			0x20000
+#define CONFIG_ENV_ADDR 			0x100000
 /* allow to overwrite serial and ethaddr */
 #define CONFIG_ENV_OVERWRITE
 
@@ -185,6 +186,12 @@
 #define CONFIG_MTD_PARTITIONS
 #define CONFIG_YAFFS2
 #define CONFIG_RBTREE
+
+#define MTDIDS_DEFAULT "nand0=nandflash0"
+#define MTDPARTS_DEFAULT "mtdparts=nandflash0:1m@0(bootloader)," \
+                            "128k(params)," \
+                            "4m(kernel)," \
+                            "-(root)"
 
 /* additions for new relocation code, must be added to all boards */
 #define CONFIG_SYS_SDRAM_BASE	PHYS_SDRAM_1
